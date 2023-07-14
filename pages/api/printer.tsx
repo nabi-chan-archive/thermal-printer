@@ -1,17 +1,15 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { Block, StyledText } from "@blocknote/core";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connect } from "node:net";
 import {
   render,
   Printer,
   Text,
-  Row,
   Br,
   Line,
-  Barcode,
-  QRCode,
-  Image,
   Cut,
+  TextSize,
 } from "react-thermal-printer";
 
 export default async function handler(
@@ -31,23 +29,45 @@ export default async function handler(
 
   const data = await render(
     <Printer width={42} type={"epson"} characterSet="korea">
-      {(req.body as { type: string; props: any }[]).map(({ type, props }) => {
-        if (type === "text")
+      {(req.body as Block<any>[]).map(({ type, content, props }) => {
+        console.log(type, content, props);
+
+        if (type === "heading")
           return (
             <Text
-              {...props}
+              invert={props.backgroundColor === "default" ? true : undefined}
+              bold={(content[0] as StyledText)?.styles?.["bold"] ? true : false}
+              underline={
+                (content[0] as StyledText)?.styles?.["underline"]
+                  ? "1dot-thick"
+                  : "none"
+              }
+              align={props.textAlignment ?? "left"}
               size={{
-                width: props.width ?? "1",
-                height: props.height ?? "1",
+                width: (4 - Number(props.level)) as TextSize,
+                height: (4 - Number(props.level)) as TextSize,
               }}
-            />
+            >
+              {(content[0] as StyledText).text}
+            </Text>
           );
-        if (type === "row") return <Row {...props} />;
-        if (type === "br") return <Br {...props} />;
+        if (type === "paragraph" && !content.length) return <Br {...props} />;
+        if (type === "paragraph")
+          return (
+            <Text
+              invert={props.backgroundColor === "gray" ? true : undefined}
+              bold={(content[0] as StyledText)?.styles?.["bold"] ? true : false}
+              underline={
+                (content[0] as StyledText)?.styles?.["underline"]
+                  ? "1dot-thick"
+                  : "none"
+              }
+              align={props.textAlignment ?? "left"}
+            >
+              {(content[0] as StyledText)?.text}
+            </Text>
+          );
         if (type === "line") return <Line {...props} />;
-        if (type === "barcode") return <Barcode {...props} />;
-        if (type === "qrcode") return <QRCode {...props} />;
-        if (type === "image") return <Image {...props} alt="" />;
       })}
       <Cut />
     </Printer>
