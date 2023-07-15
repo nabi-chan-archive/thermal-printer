@@ -17,6 +17,7 @@ export default async function handler<BSchema extends BlockSchema>(
     characterSet: CharacterSet.KOREA,
     removeSpecialCharacters: false,
     lineCharacter: "=",
+    width: 42,
     options: {
       timeout: 3000,
     },
@@ -68,6 +69,10 @@ export default async function handler<BSchema extends BlockSchema>(
       numberedListItemIndex[depth as keyof typeof numberedListItemIndex]++;
     } else {
       numberedListItemIndex[depth as keyof typeof numberedListItemIndex] = 1;
+    }
+
+    if (block.type === "line") {
+      printer.drawLine();
     }
 
     // render props
