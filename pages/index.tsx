@@ -25,9 +25,16 @@ export default function Home() {
     }
   }
 
+  const initialContent = globalThis?.localStorage?.getItem("editorContent");
+
   const editor = useBlockNote({
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     onEditorContentChange: (editor) => {
       setContents(editor.topLevelBlocks);
+      globalThis?.localStorage?.setItem(
+        "editorContent",
+        JSON.stringify(editor.topLevelBlocks)
+      );
     },
     slashCommands: [...defaultReactSlashMenuItems, ...Blocks],
     blockSchema: {
