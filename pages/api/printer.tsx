@@ -5,7 +5,6 @@ import {
   ThermalPrinter,
   PrinterTypes,
   CharacterSet,
-  breakLine,
 } from "node-thermal-printer";
 
 export default async function handler<BSchema extends BlockSchema>(
@@ -14,7 +13,7 @@ export default async function handler<BSchema extends BlockSchema>(
 ) {
   const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON,
-    interface: `tcp://${process.env.PRINTER_HOTS}:${process.env.PRINTER_PORT}`,
+    interface: `tcp://${process.env.PRINTER_HOST}:${process.env.PRINTER_PORT}`,
     characterSet: CharacterSet.KOREA,
     removeSpecialCharacters: false,
     lineCharacter: "=",
@@ -23,13 +22,22 @@ export default async function handler<BSchema extends BlockSchema>(
     },
   });
 
-  // const isConnected = await printer.isPrinterConnected();
+  const isConnected = await printer.isPrinterConnected();
 
-  // if (!isConnected)
-  //   return res.status(500).json({
-  //     error: true,
-  //     message: "프린터가 연결되어 있지 않습니다.",
-  //   });
+  if (!isConnected)
+    return res.status(500).json({
+      error: true,
+      message: "프린터가 연결되어 있지 않습니다.",
+    });
+
+  let numberedListItemIndex = {
+    0: 1,
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,
+    5: 1,
+  };
 
   function renderBlock(block: Block<BSchema>, depth = 0) {
     // handle max depth
@@ -39,6 +47,13 @@ export default async function handler<BSchema extends BlockSchema>(
         message: "max depth exceeded",
       });
 
+    // reset style
+    printer.setTextNormal();
+    printer.invert(false);
+
+    // add depth
+    printer.print(String().padStart(depth * 2, " "));
+
     // render heading
     if (block.type === "heading") {
       const { level } = block.props;
@@ -46,9 +61,20 @@ export default async function handler<BSchema extends BlockSchema>(
       printer.setTextSize(size, size);
     }
 
-    // render paragraph
-    if (block.type === "paragraph") {
-      printer.setTextSize(1, 1);
+    // render bulletListItem
+    if (block.type === "bulletListItem") {
+      printer.print("* ");
+    }
+
+    // render numberedListItem
+    if (block.type === "numberedListItem") {
+      printer.print(
+        numberedListItemIndex[depth as keyof typeof numberedListItemIndex] +
+          ". "
+      );
+      numberedListItemIndex[depth as keyof typeof numberedListItemIndex]++;
+    } else {
+      numberedListItemIndex[depth as keyof typeof numberedListItemIndex] = 1;
     }
 
     // render props
@@ -88,7 +114,7 @@ export default async function handler<BSchema extends BlockSchema>(
 
     // render contents
     if (block.content.length > 0) {
-      renderContent(block.content, depth);
+      renderContent(block.content);
     }
 
     // render children
@@ -99,7 +125,7 @@ export default async function handler<BSchema extends BlockSchema>(
     }
   }
 
-  function renderContent(content: Block<BSchema>["content"], depth = 0) {
+  function renderContent(content: Block<BSchema>["content"]) {
     if (!content.length) return;
 
     content.forEach((content) => {
@@ -109,13 +135,11 @@ export default async function handler<BSchema extends BlockSchema>(
         Object.entries(content.styles).forEach(([key, value]) => {
           // Bold
           if (key === "bold") {
-            console.debug("styles: bold");
             if (value === true) printer.bold(true);
             return;
           }
           // Underline
           if (key === "underline") {
-            console.debug("styles: underline");
             if (value === true) printer.underline(true);
             return;
           }
@@ -129,7 +153,7 @@ export default async function handler<BSchema extends BlockSchema>(
           });
         });
 
-        return printer.println(String().padStart(depth * 2, " ") + text);
+        return printer.println(text);
       }
 
       if (content.type === "link") {
@@ -149,7 +173,7 @@ export default async function handler<BSchema extends BlockSchema>(
   printer.cut();
   await printer.execute();
 
-  res.status(200).end({
+  res.status(200).json({
     success: true,
   });
 }
