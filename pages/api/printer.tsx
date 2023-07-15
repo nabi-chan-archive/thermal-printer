@@ -40,13 +40,6 @@ export default async function handler<BSchema extends BlockSchema>(
   };
 
   function renderBlock(block: Block<BSchema>, depth = 0) {
-    // handle max depth
-    if (depth > 5)
-      return res.status(400).json({
-        error: true,
-        message: "max depth exceeded",
-      });
-
     // reset style
     printer.setTextNormal();
     printer.invert(false);

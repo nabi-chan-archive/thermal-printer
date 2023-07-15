@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
   BlockNoteView,
   useBlockNote,
@@ -9,12 +9,20 @@ import { Blocks, LineBlock } from "@/blocknote/blocks";
 import { Block, defaultBlockSchema } from "@blocknote/core";
 import { CustomDragHandleMenu } from "@/blocknote/sideMenu";
 import { CustomFormattingToolbar } from "@/blocknote/toolbar";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const [contents, setContents] = useState<Block<any>[]>([]);
 
   async function submit() {
-    axios.post("/api/printer", contents);
+    try {
+      const response = await axios.post("/api/printer", contents);
+      if (response.data.success) toast.success("프린트를 완료했습니다.");
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        toast.error(e.response?.data.message);
+      }
+    }
   }
 
   const editor = useBlockNote({
