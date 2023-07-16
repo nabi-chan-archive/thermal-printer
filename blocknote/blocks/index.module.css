@@ -1,0 +1,173 @@
+/*
+BASIC STYLES
+*/
+
+.blockOuter {
+  line-height: 1.5;
+  transition: margin 0.2s;
+}
+
+/*Ensures blocks & block content spans editor width*/
+.block {
+  display: flex;
+  flex-direction: column;
+}
+
+/*Ensures block content inside React node views spans editor width*/
+.reactNodeViewRenderer {
+  display: flex;
+  flex-grow: 1;
+}
+
+.blockContent {
+  padding: 3px 0;
+  flex-grow: 1;
+  transition: font-size 0.2s;
+  /*
+  because the content elements are display: block
+  we use flex to position them next to list markers
+  */
+}
+
+.blockContent::before {
+  /* content: ""; */
+  transition: all 0.2s;
+  /*margin: 0px;*/
+}
+
+/*
+NESTED BLOCKS
+*/
+
+.blockGroup .blockGroup {
+  margin-left: 1.5em;
+}
+
+.blockGroup .blockGroup > .blockOuter {
+  position: relative;
+}
+
+.blockGroup .blockGroup > .blockOuter:not([data-prev-depth-changed])::before {
+  content: " ";
+  display: inline;
+  position: absolute;
+  left: -20px;
+  height: 100%;
+  transition: all 0.2s 0.1s;
+}
+
+[data-theme="light"]
+  .blockGroup
+  .blockGroup
+  > .blockOuter:not([data-prev-depth-changed])::before {
+  border-left: 1px solid #afafaf;
+}
+
+[data-theme="dark"]
+  .blockGroup
+  .blockGroup
+  > .blockOuter:not([data-prev-depth-changed])::before {
+  border-left: 1px solid #7f7f7f;
+}
+
+.blockGroup .blockGroup > .blockOuter[data-prev-depth-change="-2"]::before {
+  height: 0;
+}
+
+.blockOuter[data-prev-depth-change] {
+  margin-left: calc(10px * var(--x));
+}
+
+.blockOuter[data-prev-depth-change] .blockOuter[data-prev-depth-change] {
+  margin-left: 0;
+}
+
+.blockOuter[data-prev-type="heading"] > .block > .blockContent {
+  font-size: var(--prev-level);
+  font-weight: bold;
+}
+
+.blockOuter:not([data-prev-type])
+  > .block
+  > .blockContent[data-content-type="heading"] {
+  font-size: var(--level);
+  font-weight: bold;
+}
+
+/* LISTS */
+
+.blockContent::before {
+  margin-right: 0;
+  content: "";
+}
+
+.blockOuter[data-prev-type="numberedListItem"]:not([data-prev-index="none"])
+  > .block
+  > .blockContent::before {
+  margin-right: 1.2em;
+  content: var(--prev-index) ".";
+}
+
+.blockOuter:not([data-prev-type])
+  > .block
+  > .blockContent[data-content-type="numberedListItem"]::before {
+  margin-right: 1.2em;
+  content: var(--index) ".";
+}
+
+/* Unordered */
+/* No list nesting */
+.blockOuter[data-prev-type="bulletListItem"] > .block > .blockContent::before {
+  margin-right: 1.2em;
+  content: "•";
+}
+
+.blockOuter:not([data-prev-type])
+  > .block
+  > .blockContent[data-content-type="bulletListItem"]::before {
+  margin-right: 1.2em;
+  content: "•";
+}
+
+/* PLACEHOLDERS*/
+
+.isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
+  /*float: left; */
+  content: "";
+  pointer-events: none;
+  height: 0;
+  /* width: 0; */
+  position: absolute;
+  font-style: italic;
+}
+
+[data-theme="light"] .isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
+  color: #cfcfcf;
+}
+
+[data-theme="dark"] .isEmpty .inlineContent:before,
+.isFilter .inlineContent:before {
+  color: #7f7f7f;
+}
+
+/* TODO: would be nicer if defined from code */
+
+.isEmpty.hasAnchor .inlineContent:before {
+  content: "Enter text or type '/' for commands";
+}
+
+.blockContent.isFilter.hasAnchor .inlineContent:before {
+  content: "Type to filter";
+}
+
+.blockContent[data-content-type="heading"].isEmpty .inlineContent:before {
+  content: "Heading";
+}
+
+.blockContent[data-content-type="bulletListItem"].isEmpty .inlineContent:before,
+.blockContent[data-content-type="numberedListItem"].isEmpty
+  .inlineContent:before {
+  content: "List";
+}
