@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Block, BlockSchema } from "@blocknote/core";
+import { schema, Block, Content } from "@/schema/printer";
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
   ThermalPrinter,
@@ -7,10 +7,25 @@ import {
   CharacterSet,
 } from "node-thermal-printer";
 
-export default async function handler<BSchema extends BlockSchema>(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "POST")
+    return res.status(405).json({
+      error: true,
+      message: "허용되지 않는 메소드입니다.",
+    });
+
+  const result = schema.safeParse(req.body);
+
+  if (!result.success)
+    return res.status(400).json({
+      error: true,
+      message: "요청값이 올바르지 않습니다.",
+      errors: result.error,
+    });
+
   const printer = new ThermalPrinter({
     type: PrinterTypes.EPSON,
     interface: `tcp://${process.env.PRINTER_HOST}:${process.env.PRINTER_PORT}`,
@@ -40,7 +55,7 @@ export default async function handler<BSchema extends BlockSchema>(
     5: 1,
   };
 
-  function renderBlock(block: Block<BSchema>, depth = 0) {
+  function renderBlock(block: Block, depth = 0) {
     // reset style
     printer.setTextNormal();
     printer.invert(false);
@@ -123,7 +138,7 @@ export default async function handler<BSchema extends BlockSchema>(
     }
   }
 
-  function renderContent(content: Block<BSchema>["content"]) {
+  function renderContent(content: Content[]) {
     if (!content.length) return;
 
     content.forEach((content) => {
@@ -166,7 +181,7 @@ export default async function handler<BSchema extends BlockSchema>(
     });
   }
 
-  req.body.forEach((item: Block<BSchema>) => renderBlock(item));
+  result.data.forEach((item) => renderBlock(item));
 
   printer.cut();
   await printer.execute();
