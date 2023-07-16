@@ -10,9 +10,11 @@ import { Block, defaultBlockSchema } from "@blocknote/core";
 import { CustomDragHandleMenu } from "@/blocknote/sideMenu";
 import { CustomFormattingToolbar } from "@/blocknote/toolbar";
 import { toast } from "react-toastify";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Home() {
   const [contents, setContents] = useState<Block<any>[]>([]);
+  const theme = useTheme();
 
   async function submit() {
     try {
@@ -28,6 +30,7 @@ export default function Home() {
   const initialContent = globalThis?.localStorage?.getItem("editorContent");
 
   const editor = useBlockNote({
+    theme,
     initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     onEditorContentChange: (editor) => {
       setContents(editor.topLevelBlocks);
