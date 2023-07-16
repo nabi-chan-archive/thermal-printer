@@ -22,18 +22,18 @@ export default function TabList({
   setTab,
 }: TabListProps) {
   return (
-    <div className="tabs w-full">
+    <div className="tabs w-full flex-nowrap overflow-x-auto">
       {tabList.map(({ title }, index) => (
         <div
           role="button"
           key={index}
           onClick={setTab(index)}
           className={[
-            "tab tab-bordered flex-1 justify-between",
+            "tab tab-bordered flex-1 justify-between min-w-[150px] gap-2 flex-nowrap",
             isCurrentTab(index) ? "tab-active" : "",
           ].join(" ")}
         >
-          <span>{title || "무제"}</span>
+          <span className="truncate">{title || "무제"}</span>
 
           {tabList.length > 1 && (
             <button
@@ -45,10 +45,7 @@ export default function TabList({
           )}
         </div>
       ))}
-      <button
-        className="tab btn btn-square btn-sm btn-ghost ml-2"
-        onClick={newTab}
-      >
+      <button className="btn btn-square btn-sm btn-ghost ml-2" onClick={newTab}>
         <FaPlus />
       </button>
     </div>
