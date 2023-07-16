@@ -1,6 +1,5 @@
 import { Block, defaultBlockSchema } from "@blocknote/core";
 import { useBlockNote } from "@blocknote/react";
-import { useTheme } from "./useTheme";
 import { useState } from "react";
 import { slashCommands } from "@/blocknote/slashCommands";
 import { customBlockSchema } from "@/blocknote/blockSchema";
@@ -11,7 +10,6 @@ type useEditorArgs = {
 
 export function useEditor({ currentTabIndex }: useEditorArgs, deps: unknown[]) {
   const [contents, setContents] = useState<Block<any>[]>([]);
-  const theme = useTheme();
 
   const initialContent = globalThis?.localStorage?.getItem(
     `tab-${currentTabIndex}`
@@ -19,7 +17,6 @@ export function useEditor({ currentTabIndex }: useEditorArgs, deps: unknown[]) {
 
   const editor = useBlockNote(
     {
-      theme,
       initialContent: initialContent ? JSON.parse(initialContent) : undefined,
       onEditorContentChange: (editor) => {
         setContents(editor.topLevelBlocks);
