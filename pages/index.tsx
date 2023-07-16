@@ -14,16 +14,20 @@ import { useTheme } from "@/hooks/useTheme";
 
 export default function Home() {
   const [contents, setContents] = useState<Block<any>[]>([]);
+  const [isPrinting, setIsPrinting] = useState(false);
   const theme = useTheme();
 
   async function submit() {
     try {
+      setIsPrinting(true);
       const response = await axios.post("/api/printer", contents);
       if (response.data.success) toast.success("프린트를 완료했습니다.");
     } catch (e) {
       if (e instanceof AxiosError) {
         toast.error(e.response?.data.message);
       }
+    } finally {
+      setIsPrinting(false);
     }
   }
 
@@ -55,7 +59,7 @@ export default function Home() {
       <BlockNoteView editor={editor} />
 
       <div className="flex justify-end mt-8">
-        <button className="btn btn-sm" onClick={submit}>
+        <button disabled={isPrinting} className="btn btn-sm" onClick={submit}>
           전송하기
         </button>
       </div>
