@@ -1,5 +1,6 @@
 import { FaPlus } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
+import { MouseEvent } from "react";
 
 import { Tab } from "@/hooks/useTabs";
 
@@ -8,7 +9,7 @@ type TabListProps = {
 
   newTab: () => void;
   isCurrentTab: (index: number) => boolean;
-  removeTab: (index: number) => () => void;
+  removeTab: (index: number) => (e: MouseEvent<HTMLButtonElement>) => void;
   setTab: (index: number) => () => void;
 };
 

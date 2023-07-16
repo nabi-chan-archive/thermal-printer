@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, MouseEvent, useState } from "react";
 
 export type Tab = {
   title: string;
@@ -42,7 +42,8 @@ export function useTabs() {
       });
     };
 
-  const removeTab = (index: number) => () => {
+  const removeTab = (index: number) => (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setTabList((tabList) => {
       const newTabList = [...tabList];
       newTabList.splice(index, 1);
