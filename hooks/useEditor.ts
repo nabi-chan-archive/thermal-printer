@@ -1,9 +1,9 @@
-import { Block } from "@blocknote/core";
-import { defaultReactSlashMenuItems, useBlockNote } from "@blocknote/react";
+import { Block, defaultBlockSchema } from "@blocknote/core";
+import { useBlockNote } from "@blocknote/react";
 import { useTheme } from "./useTheme";
 import { useState } from "react";
-import { blockSchema } from "@/blocknote/blockSchema";
-import { slashCommands } from "@/blocknote/slashMenu";
+import { slashCommands } from "@/blocknote/slashCommands";
+import { customBlockSchema } from "@/blocknote/blockSchema";
 
 type useEditorArgs = {
   currentTabIndex: number;
@@ -21,7 +21,6 @@ export function useEditor({ currentTabIndex }: useEditorArgs, deps: unknown[]) {
     {
       theme,
       initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-      defaultStyles: false,
       onEditorContentChange: (editor) => {
         setContents(editor.topLevelBlocks);
         globalThis?.localStorage?.setItem(
@@ -30,7 +29,10 @@ export function useEditor({ currentTabIndex }: useEditorArgs, deps: unknown[]) {
         );
       },
       slashCommands,
-      blockSchema,
+      blockSchema: {
+        ...defaultBlockSchema,
+        ...customBlockSchema,
+      },
     },
     deps
   );

@@ -5,7 +5,15 @@ const base = z.object({
     required_error: "id는 필수값입니다.",
   }),
   type: z.enum(
-    ["heading", "paragraph", "line", "bulletListItem", "numberedListItem"],
+    [
+      "heading",
+      "paragraph",
+      "line",
+      "bulletListItem",
+      "numberedListItem",
+      "singleLine",
+      "doubleLine",
+    ],
     {
       required_error: "type은 필수값입니다.",
       invalid_type_error: "올바르지 않은 Block 타입입니다.",

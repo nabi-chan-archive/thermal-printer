@@ -86,8 +86,12 @@ export default async function handler(
       numberedListItemIndex[depth as keyof typeof numberedListItemIndex] = 1;
     }
 
-    if (block.type === "line") {
-      printer.drawLine();
+    if (block.type === "singleLine") {
+      printer.println(Array(42).fill("-").join(""));
+    }
+
+    if (block.type === "doubleLine") {
+      printer.println(Array(42).fill("=").join(""));
     }
 
     // render props
