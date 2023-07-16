@@ -72,7 +72,6 @@ export default function Home() {
 
       <input
         type="text"
-        defaultValue={currentTab.title}
         placeholder="제목을 입력해주세요"
         value={currentTab.title}
         onChange={renameTab(currentTabIndex)}
