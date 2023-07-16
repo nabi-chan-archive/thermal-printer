@@ -1,23 +1,13 @@
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
-import {
-  BlockNoteView,
-  useBlockNote,
-  defaultReactSlashMenuItems,
-} from "@blocknote/react";
-import { Blocks, LineBlock } from "@/blocknote/blocks";
-import { Block, defaultBlockSchema } from "@blocknote/core";
-import { CustomDragHandleMenu } from "@/blocknote/sideMenu";
-import { CustomFormattingToolbar } from "@/blocknote/toolbar";
+import { BlockNoteView } from "@blocknote/react";
 import { toast } from "react-toastify";
-import { useTheme } from "@/hooks/useTheme";
-import { FaPlus } from "react-icons/fa";
-import { FaXmark } from "react-icons/fa6";
 import { useTabs } from "@/hooks/useTabs";
+import { useEditor } from "@/hooks/useEditor";
 
 export default function Home() {
   const {
-    tabList: tabs,
+    tabList,
     currentTab,
     currentTabIndex,
 
@@ -27,9 +17,11 @@ export default function Home() {
     setTab,
     isCurrentTab,
   } = useTabs();
-  const [contents, setContents] = useState<Block<any>[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
-  const theme = useTheme();
+
+  const { editor, contents } = useEditor({ currentTabIndex }, [
+    currentTabIndex,
+  ]);
 
   async function submit() {
     try {
@@ -44,34 +36,6 @@ export default function Home() {
       setIsPrinting(false);
     }
   }
-
-  const initialContent = globalThis?.localStorage?.getItem(
-    `tab-${currentTabIndex}`
-  );
-
-  const editor = useBlockNote(
-    {
-      theme,
-      initialContent: initialContent ? JSON.parse(initialContent) : undefined,
-      onEditorContentChange: (editor) => {
-        setContents(editor.topLevelBlocks);
-        globalThis?.localStorage?.setItem(
-          `tab-${currentTabIndex}` ?? "tab-0",
-          JSON.stringify(editor.topLevelBlocks)
-        );
-      },
-      slashCommands: [...defaultReactSlashMenuItems, ...Blocks],
-      blockSchema: {
-        ...defaultBlockSchema,
-        line: LineBlock,
-      },
-      customElements: {
-        dragHandleMenu: CustomDragHandleMenu as any,
-        formattingToolbar: CustomFormattingToolbar as any,
-      },
-    },
-    [currentTabIndex]
-  );
 
   return (
     <main className="p-4 font-mono main px-[54px]">
