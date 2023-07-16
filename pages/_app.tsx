@@ -3,10 +3,11 @@ import "@blocknote/core/style.css";
 import "react-toastify/dist/ReactToastify.css";
 import type { AppProps } from "next/app";
 import { ToastContainer } from "react-toastify";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <ErrorBoundary>
       <Component {...pageProps} />
       <ToastContainer
         position="top-right"
@@ -16,6 +17,6 @@ export default function App({ Component, pageProps }: AppProps) {
         pauseOnHover={false}
         theme="colored"
       />
-    </>
+    </ErrorBoundary>
   );
 }
