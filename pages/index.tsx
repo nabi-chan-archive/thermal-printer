@@ -4,6 +4,22 @@ import { BlockNoteView } from "@blocknote/react";
 import { toast } from "react-toastify";
 import { useTabs } from "@/hooks/useTabs";
 import { useEditor } from "@/hooks/useEditor";
+import dynamic from "next/dynamic";
+
+const TabList = dynamic(() => import("@/components/TabList"), {
+  ssr: false,
+  loading: () => (
+    <div className="tabs w-full">
+      {[...Array(2)].map((_, index) => (
+        <div key={index} className="tab tab-bordered flex-1 justify-between">
+          <span className="skeleton rounded-md text-transparent mb-2 text-sm">
+            컴포넌트를 불러오고 있습니다...
+          </span>
+        </div>
+      ))}
+    </div>
+  ),
+});
 
 export default function Home() {
   const {
@@ -39,36 +55,13 @@ export default function Home() {
 
   return (
     <main className="p-4 font-mono main px-[54px]">
-      <div className="tabs w-full">
-        {tabs.map(({ title }, index) => (
-          <div
-            role="button"
-            key={index}
-            onClick={setTab(index)}
-            className={[
-              "tab tab-bordered flex-1 justify-between",
-              isCurrentTab(index) ? "tab-active" : "",
-            ].join(" ")}
-          >
-            <span>{title || "무제"}</span>
-
-            {tabs.length > 1 && (
-              <button
-                className="btn btn-square btn-xs btn-ghost"
-                onClick={removeTab(index)}
-              >
-                <FaXmark />
-              </button>
-            )}
-          </div>
-        ))}
-        <button
-          className="tab btn btn-square btn-sm btn-ghost ml-2"
-          onClick={newTab}
-        >
-          <FaPlus />
-        </button>
-      </div>
+      <TabList
+        tabList={tabList}
+        newTab={newTab}
+        isCurrentTab={isCurrentTab}
+        removeTab={removeTab}
+        setTab={setTab}
+      />
 
       <input
         type="text"
