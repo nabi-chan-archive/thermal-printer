@@ -9,10 +9,12 @@ type useEditorArgs = {
 };
 
 export function useEditor({ currentTabIndex }: useEditorArgs, deps: unknown[]) {
-  const [contents, setContents] = useState<Block<any>[]>([]);
-
   const initialContent = globalThis?.localStorage?.getItem(
     `tab-${currentTabIndex}`
+  );
+
+  const [contents, setContents] = useState<Block<any>[]>(
+    initialContent ? JSON.parse(initialContent) : []
   );
 
   const editor = useBlockNote(
