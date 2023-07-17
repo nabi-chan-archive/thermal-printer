@@ -8,6 +8,11 @@ import {
   CharacterSet,
 } from "node-thermal-printer";
 import { z } from "zod";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default async function handler(
   req: NextApiRequest,
@@ -227,7 +232,7 @@ export default async function handler(
       content: [
         {
           type: "text",
-          text: dayjs().format("YYYY년 MM월 DD일 HH시 mm분"),
+          text: dayjs().tz("Asia/Seoul").format("YYYY년 MM월 DD일 HH시 mm분"),
           styles: {
             bold: true,
           },
