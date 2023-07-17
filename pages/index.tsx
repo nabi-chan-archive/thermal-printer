@@ -34,6 +34,7 @@ export default function Home() {
     isCurrentTab,
   } = useTabs();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [printsTitle, setPrintsTitle] = useState(true);
 
   const { editor, contents } = useEditor({ currentTabIndex }, [
     currentTabIndex,
@@ -42,7 +43,11 @@ export default function Home() {
   async function submit() {
     try {
       setIsPrinting(true);
-      const response = await axios.post("/api/printer", contents);
+      const response = await axios.post("/api/printer", {
+        title: currentTab.title ?? "무제",
+        printsTitle,
+        blocks: contents,
+      });
       if (response.data.success) toast.success("프린트를 완료했습니다.");
     } catch (e) {
       if (e instanceof AxiosError) {
@@ -54,7 +59,7 @@ export default function Home() {
   }
 
   return (
-    <main className="p-4 font-mono main px-[54px]">
+    <main className="p-4 !font-mono main px-[54px]">
       <TabList
         tabList={tabList}
         newTab={newTab}
@@ -63,13 +68,25 @@ export default function Home() {
         setTab={setTab}
       />
 
-      <input
-        type="text"
-        placeholder="제목을 입력해주세요"
-        value={currentTab.title}
-        onChange={renameTab(currentTabIndex)}
-        className="input input-ghost w-full my-4 p-0 rounded-sm text-xl font-bold"
-      />
+      <div className="flex gap-4 items-center">
+        <input
+          type="text"
+          placeholder="제목을 입력해주세요"
+          value={currentTab.title}
+          onChange={renameTab(currentTabIndex)}
+          className="input input-ghost w-full my-4 p-0 rounded-sm text-xl font-bold flex-1"
+        />
+
+        <label className="flex gap-2 flex-nowrap items-center">
+          <span>제목도 인쇄하기</span>
+          <input
+            type="checkbox"
+            className="checkbox"
+            defaultChecked
+            onChange={(e) => setPrintsTitle(e.target.checked)}
+          />
+        </label>
+      </div>
 
       <BlockNoteView editor={editor} />
 

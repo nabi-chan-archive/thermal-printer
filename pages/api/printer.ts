@@ -1,11 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { schema, Block, Content } from "@/schema/printer";
+import dayjs from "dayjs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
   ThermalPrinter,
   PrinterTypes,
   CharacterSet,
 } from "node-thermal-printer";
+import { z } from "zod";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,7 +19,15 @@ export default async function handler(
       message: "허용되지 않는 메소드입니다.",
     });
 
-  const result = schema.safeParse(req.body);
+  const result = z
+    .object({
+      title: z.string({
+        required_error: "title은 필수값입니다.",
+      }),
+      printsTitle: z.boolean(),
+      blocks: schema,
+    })
+    .safeParse(req.body);
 
   if (!result.success)
     return res.status(400).json({
@@ -185,7 +195,60 @@ export default async function handler(
     });
   }
 
-  result.data.forEach((item) => renderBlock(item));
+  if (result.data.printsTitle) {
+    renderBlock({
+      id: "title",
+      type: "heading",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+        level: "3",
+      },
+      children: [],
+      content: [
+        {
+          type: "text",
+          text: result.data.title,
+          styles: {},
+        },
+      ],
+    });
+
+    renderBlock({
+      id: "paragraph",
+      type: "paragraph",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      children: [],
+      content: [
+        {
+          type: "text",
+          text: dayjs().format("YYYY년 MM월 DD일 HH시 mm분"),
+          styles: {
+            bold: true,
+          },
+        },
+      ],
+    });
+
+    renderBlock({
+      id: "doubleLine",
+      type: "doubleLine",
+      props: {
+        textColor: "default",
+        backgroundColor: "default",
+        textAlignment: "left",
+      },
+      children: [],
+      content: [],
+    });
+  }
+
+  result.data.blocks.forEach((item) => renderBlock(item));
 
   printer.cut();
   await printer.execute();
